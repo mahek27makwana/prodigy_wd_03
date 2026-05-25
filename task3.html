@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Advanced Tic Tac Toe</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    background:linear-gradient(-45deg,#0f172a,#1e293b,#0f766e,#312e81);
+    background-size:400% 400%;
+    animation:bgMove 10s ease infinite;
+}
+
+@keyframes bgMove{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+.container{
+    width:420px;
+    padding:25px;
+    border-radius:25px;
+    backdrop-filter:blur(18px);
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    box-shadow:0 8px 40px rgba(0,0,0,0.4);
+    text-align:center;
+    color:white;
+}
+
+.title{
+    font-size:40px;
+    font-weight:700;
+    margin-bottom:10px;
+    text-shadow:0 0 15px rgba(255,255,255,0.4);
+}
+
+.status{
+    font-size:20px;
+    margin-bottom:20px;
+    min-height:30px;
+}
+
+.scoreboard{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+    gap:10px;
+}
+
+.score-box{
+    flex:1;
+    background:rgba(255,255,255,0.08);
+    padding:12px;
+    border-radius:15px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+.score-box h3{
+    font-size:16px;
+}
+
+.score-box p{
+    font-size:24px;
+    font-weight:700;
+    margin-top:5px;
+}
+
+.board{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+}
+
+.cell{
+    height:110px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.08);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:55px;
+    font-weight:700;
+    cursor:pointer;
+    transition:0.3s;
+    position:relative;
+    overflow:hidden;
+}
+
+.cell:hover{
+    transform:scale(1.05);
+    background:rgba(255,255,255,0.15);
+}
+
+.cell.x{
+    color:#38bdf8;
+    text-shadow:0 0 20px #38bdf8;
+}
+
+.cell.o{
+    color:#f472b6;
+    text-shadow:0 0 20px #f472b6;
+}
+
+.cell.win{
+    animation:winGlow 1s infinite alternate;
+}
+
+@keyframes winGlow{
+    from{
+        box-shadow:0 0 10px #fff;
+    }
+    to{
+        box-shadow:0 0 25px #22c55e;
+    }
+}
+
+.controls{
+    margin-top:25px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+button{
+    flex:1;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.reset{
+    background:#ef4444;
+    color:white;
+}
+
+.reset:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 15px #ef4444;
+}
+
+.mode{
+    background:#14b8a6;
+    color:white;
+}
+
+.mode:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 15px #14b8a6;
+}
+
+.theme{
+    background:#8b5cf6;
+    color:white;
+}
+
+.theme:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 15px #8b5cf6;
+}
+
+.footer{
+    margin-top:18px;
+    font-size:13px;
+    opacity:0.7;
+}
+
+.confetti{
+    position:absolute;
+    width:10px;
+    height:10px;
+    background:white;
+    top:-20px;
+    animation:fall linear forwards;
+}
+
+@keyframes fall{
+    to{
+        transform:translateY(100vh) rotate(720deg);
+        opacity:0;
+    }
+}
+
+.dark{
+    background:linear-gradient(-45deg,#020617,#111827,#0f172a,#1e1b4b);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="title">✨ Tic Tac Toe</div>
+
+    <div class="status" id="status">
+        Player X Turn
+    </div>
+
+    <div class="scoreboard">
+
+        <div class="score-box">
+            <h3>Player X</h3>
+            <p id="xScore">0</p>
+        </div>
+
+        <div class="score-box">
+            <h3>Draws</h3>
+            <p id="drawScore">0</p>
+        </div>
+
+        <div class="score-box">
+            <h3>Player O</h3>
+            <p id="oScore">0</p>
+        </div>
+
+    </div>
+
+    <div class="board" id="board">
+
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+
+    </div>
+
+    <div class="controls">
+        <button class="reset" onclick="resetGame()">Reset</button>
+        <button class="mode" onclick="toggleMode()">Vs AI</button>
+        <button class="theme" onclick="toggleTheme()">Theme</button>
+    </div>
+
+    <div class="footer">
+        Advanced Tic Tac Toe with Animations & AI
+    </div>
+
+</div>
+
+<script>
+
+const cells = document.querySelectorAll('.cell');
+const statusText = document.getElementById('status');
+
+let currentPlayer = "X";
+let board = ["","","","","","","","",""];
+let gameActive = true;
+let aiMode = false;
+
+let xScore = 0;
+let oScore = 0;
+let drawScore = 0;
+
+const winningConditions = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6]
+];
+
+cells.forEach(cell=>{
+    cell.addEventListener('click',handleClick);
+});
+
+function handleClick(e){
+
+    const cell = e.target;
+    const index = cell.dataset.index;
+
+    if(board[index] !== "" || !gameActive){
+        return;
+    }
+
+    makeMove(cell,index,currentPlayer);
+
+    checkWinner();
+
+    if(aiMode && currentPlayer === "O" && gameActive){
+        setTimeout(aiMove,500);
+    }
+}
+
+function makeMove(cell,index,player){
+
+    board[index] = player;
+
+    cell.textContent = player;
+
+    cell.classList.add(player.toLowerCase());
+
+    cell.style.transform = "scale(0)";
+
+    setTimeout(()=>{
+        cell.style.transform = "scale(1)";
+    },50);
+}
+
+function checkWinner(){
+
+    let won = false;
+
+    winningConditions.forEach(condition=>{
+
+        const [a,b,c] = condition;
+
+        if(
+            board[a] &&
+            board[a] === board[b] &&
+            board[a] === board[c]
+        ){
+
+            won = true;
+
+            document.querySelector(`[data-index='${a}']`).classList.add('win');
+            document.querySelector(`[data-index='${b}']`).classList.add('win');
+            document.querySelector(`[data-index='${c}']`).classList.add('win');
+
+        }
+
+    });
+
+    if(won){
+
+        statusText.innerHTML = `🎉 Player ${currentPlayer} Wins!`;
+
+        updateScore(currentPlayer);
+
+        gameActive = false;
+
+        createConfetti();
+
+        return;
+    }
+
+    if(!board.includes("")){
+
+        statusText.innerHTML = "🤝 Match Draw!";
+
+        drawScore++;
+
+        document.getElementById('drawScore').innerText = drawScore;
+
+        gameActive = false;
+
+        return;
+    }
+
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+    statusText.innerHTML = `Player ${currentPlayer} Turn`;
+}
+
+function aiMove(){
+
+    let empty = [];
+
+    board.forEach((cell,index)=>{
+        if(cell === ""){
+            empty.push(index);
+        }
+    });
+
+    const randomIndex = empty[Math.floor(Math.random()*empty.length)];
+
+    const cell = document.querySelector(`[data-index='${randomIndex}']`);
+
+    makeMove(cell,randomIndex,"O");
+
+    checkWinner();
+}
+
+function updateScore(player){
+
+    if(player === "X"){
+        xScore++;
+        document.getElementById('xScore').innerText = xScore;
+    }
+    else{
+        oScore++;
+        document.getElementById('oScore').innerText = oScore;
+    }
+}
+
+function resetGame(){
+
+    board = ["","","","","","","","",""];
+
+    gameActive = true;
+
+    currentPlayer = "X";
+
+    statusText.innerHTML = "Player X Turn";
+
+    cells.forEach(cell=>{
+
+        cell.textContent = "";
+
+        cell.classList.remove('x','o','win');
+
+    });
+}
+
+function toggleMode(){
+
+    aiMode = !aiMode;
+
+    alert(aiMode ? "AI Mode Enabled 🤖" : "2 Player Mode Enabled 👥");
+
+    resetGame();
+}
+
+function toggleTheme(){
+
+    document.body.classList.toggle('dark');
+}
+
+function createConfetti(){
+
+    for(let i=0;i<80;i++){
+
+        const confetti = document.createElement('div');
+
+        confetti.classList.add('confetti');
+
+        confetti.style.left = Math.random()*100 + "vw";
+
+        confetti.style.animationDuration = Math.random()*3 + 2 + "s";
+
+        confetti.style.background = 
+            `hsl(${Math.random()*360},100%,50%)`;
+
+        document.body.appendChild(confetti);
+
+        setTimeout(()=>{
+            confetti.remove();
+        },5000);
+    }
+}
+
+</script>
+
+</body>
+</html>
